@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aymane Laaroui</title>
+    <style>
+        *{
+            margin:0px;
+        }
+        body{
+            min-height: 1000px;
+        }
+        #cadre{
+            width:900px;
+            height: 800px;
+            border:solid 1px black;
+            background-image: url("bg.jpg");
+            background-size: 900px 800px ;
+            margin:auto;
+            position:relative;
+        }
+        .player{
+            width:20px;
+            height:100px;
+            background-color: white;
+            position: absolute;
+            border-radius:10px;
+        }
+        #player1{
+            top:300px;
+            left:100px;
+            z-index: 1000;
+        }
+        #player2{
+            top:100px;
+            left:780px;
+            z-index: 1000;
+        }
+        #ball{
+            width:20px;
+            height:20px;
+            border:solid 1px black;
+            border-radius: 20px;
+            position: absolute;
+            background-color: red;
+            top:390px;
+            left: 440px;
+        }
+        #score{
+            color:white;
+        }
+        #liste{
+            color:white;
+        }
+        #speed{
+            color:white;
+        }
+        #play{
+            margin-left:50%;
+        }
+    </style>
+</head>
+<body>
+   <div id="cadre">
+        <div id="player1" class="player"></div>
+        <div id="player2" class="player"></div>
+        <div id="ball"></div>
+        <p id="liste">record: 0</p>
+        <p id="score">score: 0</p>
+        <p id="speed">vitesse: x1</p>
+   </div> 
+   
+   <button id="play">play!</button>
+   <script>
+    var y1=300;
+    var y2=100;
+    var x=440;
+    var y=390;
+    var glisse=y1;
+    var haut=false;
+    var gauche=false;
+    var vitesse=1;
+    var score=0;
+    ball=document.querySelector("#ball");
+    cadre=document.querySelector("#cadre");
+    player1=document.getElementById("player1");
+    player2=document.querySelector("#player2");
+    const jump = new Audio('jump.wav');
+    const augh = new Audio('augh.wav');
+    const bonus = new Audio('bonus.wav');
+    const bgm = new Audio('bgm.mp3');
+    best_score=0;
+    
+    function game(){
+        ball.style.position="absolute";
+        if(y>=y2 && y<=y2+100 && gauche===false && x>=760){
+            gauche=!gauche;
+            jump.play();
+        } 
+        if(y>=y1 && y<=y1+100 && gauche===true && x<=120){
+            gauche=!gauche;  
+            score++;
+            vitesse=vitesse + 0.1;
+            document.querySelector('#speed').innerHTML="vitesse: x" + vitesse;
+            document.querySelector('#score').innerHTML="score: " + score;
+            bonus.play();
+        }
+        if(x>=80 && x<=120 && y>=y1-20 && y<=y1) haut=!haut;
+        if(x>=80 && x<=120 && y-100===y1) haut=!haut;
+        if(y>=780 || y<=0) haut= !haut;
+        if(gauche===true)x=x-vitesse;
+        else x=x+vitesse;
+        if(haut===true)y=y-vitesse;
+        else y=y+vitesse;
+        ball.style.left=x + "px";
+        ball.style.top=y + "px";
+        if(y<=700) y2=y-1;
+        player2.style.top=y2 + "px";
+        if(x<10){
+            augh.play();
+            if(score>best_score) best_score=score;
+            document.querySelector("#liste").innerHTML="record: " + best_score;
+            y2=100;
+            x=440;
+            y=390;
+            player2.style.top = y2 + "px";
+            ball.style.top = y + "px";
+            ball.style.left = x + "px";
+            score=0;
+            vitesse=1;
+            document.querySelector('#score').innerHTML="score: " + score;
+        } 
+        
+        setTimeout(game,1);
+    }
+    document.querySelector('#play').onclick=function(){
+        document.onload=game();
+        document.querySelector('#play').style.display="none";
+        bgm.play();
+        bgm.loop=true;
+    }
+   
+    
+    player1.onmousedown = function(event) {
+         player1.style.zIndex = 1000;
+         cadre.append(player1);
+         function moveAt(pageX, pageY) {
+            //player1.style.left = player1.style.left;
+            if(pageY>=0 && pageY<=700){
+                y1=pageY;
+                player1.style.top = pageY + 'px';
+                
+            }  
+         }
+        moveAt(event.pageX, event.pageY);
+          function onMouseMove(event) {
+             moveAt(event.pageX, event.pageY);
+           }
+           document.addEventListener('mousemove', onMouseMove);
+           player1.onmouseup = function() {
+          document.removeEventListener('mousemove', onMouseMove);
+         player1.onmouseup = null;
+          };
+    };
+
+    player1.ondragstart = function() {
+         return false;
+     };
+
+     document.onkeydown=function(e){
+			switch(e.keyCode){
+      			case 38:
+				  if(y1===0) break;
+                    y1=y1-20;
+					player1.style.top = y1 + "px";
+        			break;
+        		case 40:
+					if(y1===700) break;
+                    y1=y1+20;
+					player1.style.top = y1 + "px";
+					break;
+			}
+		}
+   </script>
+
+</body>
+</html>
